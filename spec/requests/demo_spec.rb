@@ -17,9 +17,11 @@ RSpec.describe "Demo helpers" do
     expect(response.parsed_body["items"].map { |i| i["returnable_quantity"] }).to eq([1, 3, 0])
   end
 
-  it "removes generated orders older than a day" do
+  it "removes generated orders older than a day, returns and all" do
     post "/api/demo/orders"
     old = Order.find_by(number: response.parsed_body["order_number"])
+    returned = old.return_requests.create!(carrier: "dhl", idempotency_key: "k")
+    returned.return_items.create!(order_item: old.order_items.first, quantity: 1, reason: "too_small")
     old.update!(created_at: 2.days.ago)
 
     post "/api/demo/orders"

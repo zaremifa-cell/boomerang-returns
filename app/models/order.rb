@@ -1,7 +1,8 @@
 class Order < ApplicationRecord
   belongs_to :retailer
-  has_many :order_items, dependent: :destroy
+  # Returns go first: their items point at order items, which refuse to go while referenced.
   has_many :return_requests, dependent: :destroy
+  has_many :order_items, dependent: :destroy
 
   validates :number, :email, :country, presence: true
 

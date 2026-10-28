@@ -165,15 +165,18 @@ export function CustomerPortal() {
 function ReturnStatus({ initial, onDone }: { initial: ReturnDetail; onDone: () => void }) {
   const [ret, setRet] = useState(initial)
   const [scanError, setScanError] = useState<string | null>(null)
+  const [polls, setPolls] = useState(0)
 
-  // Label creation runs in a background job; poll until it settles.
+  // Label creation runs in a background job; poll until it settles. A failed poll still
+  // counts as a tick, so one dropped request doesn't stop the polling.
   useEffect(() => {
     if (ret.status !== 'label_pending') return
     const t = setTimeout(async () => {
-      try { setRet(await api.getReturn(ret.id)) } catch { /* keep polling */ }
+      try { setRet(await api.getReturn(ret.id)) } catch { /* try again on the next tick */ }
+      setPolls((n) => n + 1)
     }, 1500)
     return () => clearTimeout(t)
-  }, [ret])
+  }, [ret, polls])
 
   async function scan() {
     setScanError(null)
