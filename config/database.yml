@@ -80,6 +80,4 @@ test:
 #
 production:
   <<: *default
-  database: boomerang_production
-  username: boomerang
-  password: <%= ENV["BOOMERANG_DATABASE_PASSWORD"] %>
+  url: <%= ENV["DATABASE_URL"] %>

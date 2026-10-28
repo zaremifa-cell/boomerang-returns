@@ -7,11 +7,9 @@ retailer = Retailer.find_or_create_by!(slug: "northwind") do |r|
 end
 
 def seed_order(retailer, number:, email:, country:, delivered_days_ago:, items:)
-  order = retailer.orders.find_or_create_by!(number: number) do |o|
-    o.email = email
-    o.country = country
-    o.delivered_at = delivered_days_ago&.days&.ago
-  end
+  order = retailer.orders.find_or_initialize_by(number: number)
+  # Dates are refreshed on every seed so the live demo's return windows never drift.
+  order.update!(email: email, country: country, delivered_at: delivered_days_ago&.days&.ago)
   items.each do |sku, name, price, qty, final_sale|
     order.order_items.find_or_create_by!(sku: sku) do |i|
       i.name = name

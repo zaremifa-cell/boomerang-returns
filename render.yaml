@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: boomerang-returns
+    runtime: docker
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: CARRIER_WEBHOOK_SECRET
+        generateValue: true
+      - key: FAKE_CARRIER_FAILURE_RATE
+        value: "0.4"

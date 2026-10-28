@@ -3,6 +3,8 @@
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
+  # Demo data is idempotent, so this is safe on every boot.
+  ./bin/rails db:seed
 fi
 
 exec "${@}"
