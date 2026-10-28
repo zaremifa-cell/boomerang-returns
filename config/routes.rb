@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       post "returns/:id/retry_label", action: :retry_label
     end
 
+    post "demo/orders", to: "demo#order"
     post "demo/returns/:id/scan", to: "demo#scan"
   end
 

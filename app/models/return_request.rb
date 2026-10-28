@@ -16,6 +16,19 @@ class ReturnRequest < ApplicationRecord
 
   before_validation { self.public_id ||= "RET-#{SecureRandom.alphanumeric(8).upcase}" }
 
+  STALE_LABEL_AFTER = 30.seconds
+
+  # Label jobs run in the web process. If the free server sleeps or restarts mid-retry the job is
+  # lost and the return would wait forever, so any read of a stale pending return queues it again.
+  # The job is safe to repeat: it skips returns that already have a label, and the carrier
+  # returns the same label for the same reference.
+  def self.recover_stale_labels!(scope = all)
+    scope.where(status: "label_pending").where(updated_at: ...STALE_LABEL_AFTER.ago).find_each do |request|
+      request.touch
+      CreateLabelJob.perform_later(request.id)
+    end
+  end
+
   def advance_to!(new_status)
     return false unless forward?(new_status)
 

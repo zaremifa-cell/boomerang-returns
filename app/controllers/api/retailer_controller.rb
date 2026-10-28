@@ -6,6 +6,7 @@ module Api
     before_action :authenticate!
 
     def index
+      ReturnRequest.recover_stale_labels!(@retailer.return_requests)
       scope = @retailer.return_requests.includes(:order, return_items: :order_item).order(created_at: :desc)
       scope = scope.where(status: params[:status]) if params[:status].present?
       render json: scope.limit(200).map { |r| ReturnPresenter.summary(r) }

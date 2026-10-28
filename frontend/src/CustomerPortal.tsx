@@ -15,6 +15,18 @@ export function CustomerPortal() {
   // One key per confirmation attempt: a double click or a retry after a network error reuses it.
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID())
 
+  // Start every visit with a fresh order of its own; fall back to the shared demo order.
+  async function freshOrder() {
+    try {
+      const fresh = await api.demoOrder()
+      setOrderNumber(fresh.order_number)
+      setEmail(fresh.email)
+      setOrder(null)
+      setErrors([])
+    } catch { /* keep NW-1001 */ }
+  }
+  useEffect(() => { freshOrder() }, [])
+
   async function lookup(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
@@ -77,7 +89,7 @@ export function CustomerPortal() {
           <label>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
           <button disabled={busy}>{busy && !order ? 'Finding…' : 'Find order'}</button>
         </form>
-        <p className="hint">Demo orders: NW-1001 maria@example.com · NW-1002 tom@example.com (window closed) · NW-1003 lena@example.com (country) · NW-1004 ivan@example.com (not delivered)</p>
+        <p className="hint">This order was created just for you. <button type="button" className="link" onClick={freshOrder}>New demo order</button> · Refused cases: NW-1002 tom@example.com (window closed) · NW-1003 lena@example.com (country) · NW-1004 ivan@example.com (not delivered)</p>
       </section>
 
       {errors.length > 0 && <div className="alert" role="alert">{errors.map((e) => <p key={e}>{e}</p>)}</div>}

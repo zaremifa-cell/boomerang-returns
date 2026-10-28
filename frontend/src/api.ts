@@ -96,6 +96,8 @@ export const api = {
 
   getReturn: (id: string) => request<ReturnDetail>(`/api/returns/${id}`),
 
+  demoOrder: () => request<{ order_number: string; email: string }>('/api/demo/orders', { method: 'POST' }),
+
   scan: (id: string) => request<{ outcome: string; return: ReturnDetail }>(`/api/demo/returns/${id}/scan`, { method: 'POST' }),
 
   retailer: (token: string) => {

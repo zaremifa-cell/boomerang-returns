@@ -15,7 +15,7 @@ class CreateLabelJob < ApplicationJob
     request = ReturnRequest.find(return_request_id)
     return unless request.status == "label_pending"
 
-    request.increment!(:label_attempts)
+    request.increment!(:label_attempts, touch: true) # touch keeps a retrying job from looking stale
     begin
       label = Carrier.client.create_label(reference: request.public_id, carrier: request.carrier)
     rescue Carrier::Timeout => e

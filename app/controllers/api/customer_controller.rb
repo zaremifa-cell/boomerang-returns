@@ -26,7 +26,8 @@ module Api
 
     def show
       request = ReturnRequest.find_by!(public_id: params[:id])
-      render json: ReturnPresenter.detail(request)
+      ReturnRequest.recover_stale_labels!(ReturnRequest.where(id: request.id))
+      render json: ReturnPresenter.detail(request.reload)
     end
 
     private
